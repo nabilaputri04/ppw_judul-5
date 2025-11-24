@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TA PPW judul 5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #831843 0%, #6b21a8 50%, #5b21b6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 400px;
+            background: #1f2937;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #db2777 0%, #9333ea 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .memory-indicator {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            display: none;
+        }
+
+        .memory-indicator.active {
+            display: block;
+        }
+
+        .history-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .display-container {
+            background: #111827;
+            padding: 30px 20px;
+        }
+
+        .operation-display {
+            color: #9ca3af;
+            font-size: 16px;
+            text-align: right;
+            margin-bottom: 5px;
+            min-height: 20px;
+        }
+
+        .display {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            text-align: right;
+            word-break: break-all;
+            min-height: 50px;
+        }
+
+        .history-panel {
+            background: #1f2937;
+            padding: 20px;
+            border-top: 1px solid #374151;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .history-panel.show {
+            display: block;
+        }
+
+        .history-panel h3 {
+            color: #d1d5db;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            color: #9ca3af;
+            font-size: 14px;
+            font-family: monospace;
+            padding: 5px 0;
+        }
+
+        .history-empty {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .memory-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: #1f2937;
+            border-top: 1px solid #374151;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: #1f2937;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-number {
+            background: #374151;
+        }
+
+        .btn-number:hover {
+            background: #4b5563;
+        }
+
+        .btn-operator {
+            background: #9333ea;
+        }
+
+        .btn-operator:hover {
+            background: #a855f7;
+        }
+
+        .btn-clear {
+            background: #dc2626;
+        }
+
+        .btn-clear:hover {
+            background: #ef4444;
+        }
+
+        .btn-clear-entry {
+            background: #ea580c;
+        }
+
+        .btn-clear-entry:hover {
+            background: #f97316;
+        }
+
+        .btn-equals {
+            background: #db2777;
+            grid-row: span 2;
+        }
+
+        .btn-equals:hover {
+            background: #ec4899;
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .btn-memory {
+            background: #374151;
+            color: #d1d5db;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .btn-memory:hover {
+            background: #4b5563;
+        }
+
+        .footer {
+            background: #111827;
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid #374151;
+        }
+
+        .footer p {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                max-width: 100%;
+            }
+
+            .display {
+                font-size: 32px;
+            }
+
+            button {
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>Kalkulator</h1>
+            <div class="header-icons">
+                <div class="memory-indicator" id="memoryIndicator">M: 0</div>
+                <button class="history-btn" id="historyBtn" onclick="toggleHistory()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="display-container">
+            <div class="operation-display" id="operationDisplay"></div>
+            <div class="display" id="display">0</div>
+        </div>
+
+        <div class="history-panel" id="historyPanel">
+            <h3>Riwayat</h3>
+            <div id="historyList">
+                <p class="history-empty">Belum ada riwayat</p>
+            </div>
+        </div>
+
+        <div class="memory-buttons">
+            <button class="btn-memory" onclick="memoryClear()">MC</button>
+            <button class="btn-memory" onclick="memoryRecall()">MR</button>
+            <button class="btn-memory" onclick="memoryAdd()">M+</button>
+            <button class="btn-memory" onclick="memorySubtract()">M-</button>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-clear" onclick="clearAll()">C</button>
+            <button class="btn-clear-entry" onclick="clearEntry()">CE</button>
+            <button class="btn-operator" onclick="setOperation('÷')">÷</button>
+            <button class="btn-operator" onclick="setOperation('×')">×</button>
+
+            <button class="btn-number" onclick="inputDigit('7')">7</button>
+            <button class="btn-number" onclick="inputDigit('8')">8</button>
+            <button class="btn-number" onclick="inputDigit('9')">9</button>
+            <button class="btn-operator" onclick="setOperation('-')">-</button>
+
+            <button class="btn-number" onclick="inputDigit('4')">4</button>
+            <button class="btn-number" onclick="inputDigit('5')">5</button>
+            <button class="btn-number" onclick="inputDigit('6')">6</button>
+            <button class="btn-operator" onclick="setOperation('+')">+</button>
+
+            <button class="btn-number" onclick="inputDigit('1')">1</button>
+            <button class="btn-number" onclick="inputDigit('2')">2</button>
+            <button class="btn-number" onclick="inputDigit('3')">3</button>
+            <button class="btn-equals" onclick="calculate()">=</button>
+
+            <button class="btn-number btn-zero" onclick="inputDigit('0')">0</button>
+            <button class="btn-number" onclick="inputDecimal()">.</button>
+        </div>
+
+        <div class="footer">
+            <p>Keyboard: 0-9, +, -, *, /, Enter, Esc, Backspace</p>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let display = '0';
+        let previousValue = null;
+        let operation = null;
+        let waitingForOperand = false;
+        let history = [];
+        let memory = 0;
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('display').textContent = display;
+            
+            if (operation && previousValue !== null) {
+                document.getElementById('operationDisplay').textContent = `${previousValue} ${operation}`;
+            } else {
+                document.getElementById('operationDisplay').textContent = '';
+            }
+        }
+
+        // Input digit
+        function inputDigit(digit) {
+            if (waitingForOperand) {
+                display = String(digit);
+                waitingForOperand = false;
+            } else {
+                display = display === '0' ? String(digit) : display + digit;
+            }
+            updateDisplay();
+        }
+
+        // Input decimal
+        function inputDecimal() {
+            if (waitingForOperand) {
+                display = '0.';
+                waitingForOperand = false;
+            } else if (display.indexOf('.') === -1) {
+                display = display + '.';
+            }
+            updateDisplay();
+        }
+
+        // Clear all
+        function clearAll() {
+            display = '0';
+            previousValue = null;
+            operation = null;
+            waitingForOperand = false;
+            updateDisplay();
+        }
+
+        // Clear entry
+        function clearEntry() {
+            display = '0';
+            updateDisplay();
+        }
+
+        // Set operation
+        function setOperation(nextOperation) {
+            const inputValue = parseFloat(display);
+
+            if (previousValue === null) {
+                previousValue = inputValue;
+            } else if (operation) {
+                const result = performCalculation();
+                if (result === 'Error') {
+                    display = 'Error';
+                    previousValue = null;
+                    operation = null;
+                    waitingForOperand = true;
+                    updateDisplay();
+                    return;
+                }
+                display = String(result);
+                previousValue = result;
+            }
+
+            waitingForOperand = true;
+            operation = nextOperation;
+            updateDisplay();
+        }
+
+        // Perform calculation
+        function performCalculation() {
+            const inputValue = parseFloat(display);
+            const currentValue = previousValue || 0;
+
+            switch (operation) {
+                case '+':
+                    return currentValue + inputValue;
+                case '-':
+                    return currentValue - inputValue;
+                case '×':
+                    return currentValue * inputValue;
+                case '÷':
+                    if (inputValue === 0) {
+                        return 'Error';
+                    }
+                    return currentValue / inputValue;
+                default:
+                    return inputValue;
+            }
+        }
+
+        // Calculate result
+        function calculate() {
+            if (!operation || previousValue === null) {
+                return;
+            }
+
+            const inputValue = parseFloat(display);
+            const result = performCalculation();
+
+            if (result === 'Error') {
+                display = 'Error';
+                previousValue = null;
+                operation = null;
+                waitingForOperand = true;
+                updateDisplay();
+                return;
+            }
+
+            // Add to history
+            const calculation = `${previousValue} ${operation} ${inputValue} = ${result}`;
+            history.unshift(calculation);
+            if (history.length > 5) {
+                history.pop();
+            }
+            updateHistory();
+
+            display = String(result);
+            previousValue = null;
+            operation = null;
+            waitingForOperand = true;
+            updateDisplay();
+        }
+
+        // Memory functions
+        function memoryAdd() {
+            memory += parseFloat(display);
+            updateMemoryIndicator();
+        }
+
+        function memorySubtract() {
+            memory -= parseFloat(display);
+            updateMemoryIndicator();
+        }
+
+        function memoryRecall() {
+            display = String(memory);
+            waitingForOperand = true;
+            updateDisplay();
+        }
+
+        function memoryClear() {
+            memory = 0;
+            updateMemoryIndicator();
+        }
+
+        function updateMemoryIndicator() {
+            const indicator = document.getElementById('memoryIndicator');
+            if (memory !== 0) {
+                indicator.textContent = `M: ${memory}`;
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        }
+
+        // Toggle history
+        function toggleHistory() {
+            const panel = document.getElementById('historyPanel');
+            panel.classList.toggle('show');
+        }
+
+        // Update history display
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            if (history.length === 0) {
+                historyList.innerHTML = '<p class="history-empty">Belum ada riwayat</p>';
+            } else {
+                historyList.innerHTML = history.map(item => 
+                    `<div class="history-item">${item}</div>`
+                ).join('');
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                inputDigit(e.key);
+            } else if (e.key === '.') {
+                inputDecimal();
+            } else if (e.key === '+') {
+                setOperation('+');
+            } else if (e.key === '-') {
+                setOperation('-');
+            } else if (e.key === '*') {
+                setOperation('×');
+            } else if (e.key === '/') {
+                e.preventDefault();
+                setOperation('÷');
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 'Backspace') {
+                clearEntry();
+            }
+        });
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
